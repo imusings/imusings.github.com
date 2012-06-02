@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Musings]]></title>
-  <link href="http://imusings.github.com/atom.xml" rel="self"/>
+  <title><![CDATA[Category: 软件工具 | Musings]]></title>
+  <link href="http://imusings.github.com/blog/categories/软件工具/atom.xml" rel="self"/>
   <link href="http://imusings.github.com/"/>
   <updated>2012-06-02T13:02:19+08:00</updated>
   <id>http://imusings.github.com/</id>
