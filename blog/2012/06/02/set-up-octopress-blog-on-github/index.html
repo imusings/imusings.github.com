@@ -56,6 +56,7 @@
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about-me">AboutMe</a></li>
 </ul>
 
 </nav>
@@ -83,6 +84,8 @@
 
 
 <time datetime="2012-06-02T12:47:00+08:00" pubdate data-updated="true">Jun 2<span>nd</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
         
       </p>
     
@@ -123,6 +126,10 @@
 <p>安装过程中遇到疑惑或者错误，可参考以下博文：</p>
 
 <ul>
+<li><a href="http://hivan.me/octopress-install-to-windows8/">Windows 8安装Octopress记录</a></li>
+<li><a href="http://blog.yesmryang.net/windows-octopress-python/">Windows下使用Octopress嵌入Python代码的问题</a></li>
+<li><a href="http://netwjx.github.com/blog/2012/04/21/using-code-in-octopress/">在Octopress中使用代码高亮</a></li>
+<li><a href="http://chen.yanping.me/cn/blog/2011/12/15/building-static-sites-with-jekyll/">【译文】用Jekyll构建静态网站</a></li>
 <li><a href="http://www.blogjava.net/lishunli/archive/2012/03/18/372115.html">试用Octopress</a></li>
 <li><a href="http://blog.yxwang.me/2011/11/migrated-to-octopress/">转用octopress了</a></li>
 <li><a href="http://www.yangzhiping.com/tech/octopress.html">Ruby开源项目介绍(1)：octopress——像黑客一样写博客</a></li>
@@ -146,6 +153,13 @@
 <h1>Octopress博客主题</h1>
 
 <p>暂附上两个主题的链接:<a href="http://zespia.tw/blog/categories/%E4%B8%BB%E9%A1%8C/">主题1</a>、<a href="http://zespia.tw/Octopress-Theme-Slash/index_tw.html#install">主题2</a>。</p>
+
+<h1>增加评论模块</h1>
+
+<ul>
+<li>参考<a href="http://gangmax.github.com/blog/2012/01/20/how-to-use-disqus-in-octopress/">How to Use Disqus in Octopress</a></li>
+</ul>
+
 </div>
 
 
@@ -182,8 +196,6 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://imusings.github.com/blog/2012/06/02/set-up-octopress-blog-on-github/" data-via="" data-counturl="http://imusings.github.com/blog/2012/06/02/set-up-octopress-blog-on-github/" >Tweet</a>
-  
   
   
 </div>
@@ -195,6 +207,12 @@
     </p>
   </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -212,10 +230,6 @@
 </section>
 
 
-
-
-
-
   
 </aside>
 
@@ -230,21 +244,27 @@
 </footer>
   
 
+<script type="text/javascript">
+      var disqus_shortname = 'imusings';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://imusings.github.com/blog/2012/06/02/set-up-octopress-blog-on-github/';
+        var disqus_url = 'http://imusings.github.com/blog/2012/06/02/set-up-octopress-blog-on-github/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
 
 
 
 
 
 
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
 
 
 
