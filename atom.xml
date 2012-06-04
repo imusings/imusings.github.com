@@ -4,7 +4,7 @@
   <title><![CDATA[Musings]]></title>
   <link href="http://imusings.github.com/atom.xml" rel="self"/>
   <link href="http://imusings.github.com/"/>
-  <updated>2012-06-04T18:30:30+08:00</updated>
+  <updated>2012-06-04T19:07:51+08:00</updated>
   <id>http://imusings.github.com/</id>
   <author>
     <name><![CDATA[imusings]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[基于Octopress和Github搭建个人博客]]></title>
-    <link href="http://imusings.github.com/blog/2012/06/02/set-up-octopress-blog-on-github/"/>
+    <link href="http://imusings.github.com/blog/2012/06/set-up-octopress-blog-on-github/"/>
     <updated>2012-06-02T12:47:00+08:00</updated>
-    <id>http://imusings.github.com/blog/2012/06/02/set-up-octopress-blog-on-github</id>
+    <id>http://imusings.github.com/blog/2012/06/set-up-octopress-blog-on-github</id>
     <content type="html"><![CDATA[<p>本博的搭建主要参考一些网络文章和文档，来源于网络，回馈网络，本文对参考的文章稍微加以整理。
 搭建、撰写博客的整体思路：利用Markdown标记语言（具体是什么东东可以先跳过）在本地撰写好博文，利用Octopress将其转换成静态页面，即HTML文档，然后将静态页面上传至Github，通过浏览器即可访问。下面一一介绍步骤。</p>
 
