@@ -4,7 +4,7 @@
   <title><![CDATA[Musings]]></title>
   <link href="http://imusings.github.com/atom.xml" rel="self"/>
   <link href="http://imusings.github.com/"/>
-  <updated>2012-06-04T16:57:27+08:00</updated>
+  <updated>2012-06-04T18:30:30+08:00</updated>
   <id>http://imusings.github.com/</id>
   <author>
     <name><![CDATA[imusings]]></name>
@@ -47,7 +47,7 @@
 
 <p>参考上面提及的博文<a href="http://blog.zhourunsheng.com/2012/04/%E5%88%A9%E7%94%A8github-pages%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2octopress%E5%8D%9A%E5%AE%A2/">“利用GitHub Pages安装部署Octopress博客”</a>。</p>
 
-<h1>可能遇到的问题及解决</h1>
+<h1>可能遇到的问题及解决方法</h1>
 
 <p>安装过程中遇到疑惑或者错误，可参考以下博文：</p>
 
@@ -76,16 +76,29 @@
 
 <p>Markdown相关工具可参考博文<a href="http://www.appinn.com/markdown-tools/">Markdown 工具补完</a></p>
 
-<h1>Octopress博客主题</h1>
+<h1>博客设置</h1>
+
+<h2>Octopress博客主题</h2>
 
 <p>暂附上两个主题的链接:<a href="http://zespia.tw/blog/categories/%E4%B8%BB%E9%A1%8C/">主题1</a>、<a href="http://zespia.tw/Octopress-Theme-Slash/index_tw.html#install">主题2</a>。</p>
 
-<h1>增加评论模块</h1>
+<h2>增加评论模块</h2>
 
 <ul>
 <li>参考<a href="http://gangmax.github.com/blog/2012/01/20/how-to-use-disqus-in-octopress/">How to Use Disqus in Octopress</a></li>
 </ul>
 
+
+<h2>为默认模板增加categories和tags</h2>
+
+<ul>
+<li>category功能采用插件<a href="https://github.com/tokkonopapa/octopress-tagcloud">tokkonopapa / octopress-tagcloud</a></li>
+<li>tags功能采用插件<a href="https://github.com/robbyedwards/octopress-tag-pages">robbyedwards / octopress-tag-pages</a>和<a href="https://github.com/robbyedwards/octopress-tag-cloud">robbyedwards / octopress-tag-cloud</a></li>
+<li>参考<a href="http://log4d.com/2012/05/tag-cloud/">给 Octopress 加上标签功能</a></li>
+</ul>
+
+
+<h2>octopress官方文档</h2>
 ]]></content>
   </entry>
   
