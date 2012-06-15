@@ -7,6 +7,8 @@ categories: 软件工具
 ---
 本博的搭建主要参考一些网络文章和文档，来源于网络，回馈网络，本文对参考的文章稍微加以整理。
 搭建、撰写博客的整体思路：利用Markdown标记语言（具体是什么东东可以先跳过）在本地撰写好博文，利用Octopress将其转换成静态页面，即HTML文档，然后将静态页面上传至Github，通过浏览器即可访问。下面一一介绍步骤。
+
+<!-- more -->
 #Github Repository
 你需要拥有一个Github帐号和Repo来存放你的静态页面，即你的博文。
 
@@ -15,6 +17,20 @@ categories: 软件工具
 
 #搭建本地环境
 本地环境的搭建主要包括安装Ruby、Python、Gem、设置环境变量等内容。具体步骤参考下面的博文——[利用GitHub Pages安装部署Octopress博客](http://blog.zhourunsheng.com/2012/04/%E5%88%A9%E7%94%A8github-pages%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2octopress%E5%8D%9A%E5%AE%A2/)
+
+_关于Ruby、Python、Gem的安装，需要遵循以下原则，否则可能导致代码无法高亮显示：_
+
+{% blockquote Exception on generate codeblock with "lang:" on Windows https://github.com/imathis/octopress/issues/262 %}
+
+I'm on Win7, with ruby1.9.3 (from rubyinstaller. why 1.9.2 is emphasized? my 1.9.3 is ok.), devkit, Python2.6. Just make sure that :
+
+   1. there's no blankcharacter in the exec path above,
+   2. exec path must be included in system path var, and
+   3. bundle update to update the gems.
+
+Then everything is ok. without addtional things like python-dev or modification to RubyPython/Pygment.
+
+{% endblockquote %}
 #安装Octopress
 参考上面提及的博文[“利用GitHub Pages安装部署Octopress博客”](http://blog.zhourunsheng.com/2012/04/%E5%88%A9%E7%94%A8github-pages%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2octopress%E5%8D%9A%E5%AE%A2/)。
 #发布博客到github pages
