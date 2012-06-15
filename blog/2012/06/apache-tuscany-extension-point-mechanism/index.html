@@ -1,0 +1,335 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Apache Tuscany: Extension Point Mechanism - Musings</title>
+  <meta name="author" content="imusings">
+
+  
+  <meta name="description" content="Service Component Architecture (SCA)将业务功能作为一系列的服务，通过装配Assemble（或者说组合Composite）这些服务满足特定的需求，即SCA为基于SOA的应用构建提供一个编程模型。尽管理念是好的，不可回避的是其复杂性， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://imusings.github.com/blog/2012/06/apache-tuscany-extension-point-mechanism">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Musings" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Musings</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:imusings.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about-me">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Apache Tuscany: Extension Point Mechanism</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-08T09:34:00+08:00" pubdate data-updated="true">Jun 8<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Service Component Architecture (SCA)将业务功能作为一系列的服务，通过装配Assemble（或者说组合Composite）这些服务满足特定的需求，即SCA为基于SOA的应用构建提供一个编程模型。尽管理念是好的，不可回避的是其复杂性，该模型试图包含各种服务构件技术及协议等：</p>
+
+<ul>
+<li>Binding Type: 包含不同的绑定类型，如ATOM、HTTP、EJB、CORBA、REST、Web service等</li>
+<li>Databinding Type: 包含不同的数据格式，如JSON、SDO等</li>
+<li>Implementation Type: 包含不同的服务构件实现技术，如BPEL、Java、Python、Spring、Web等</li>
+<li>Interface Type: 包含不同的接口类型，如Java、WSDL、JAX-RS、JAX-WS等</li>
+</ul>
+
+
+<p>Apache Tuscany是SCA规范的一个开源实现，自然也面临如何为上述愿景提供支持的问题。Tuscany将其欲支持的技术协议等实现为不同的Extensions，并定义了一个Tuscany core，该内核只提供基本的运行时和扩展机制支撑，最终通过扩展点（Extension Point）建立core和extensions之间的桥梁，允许extensions则以plugin的方式提供给内核。本文主要尝试讨论Tuscany core如何通过扩展点在运行时刻对extensions加以组织和使用以及extensions如何灵活的被core所发现并加载。</p>
+
+<p><em>注：本文的讨论基于Apache Tuscany 2.0版本的源码，虽然2.0版本比1.6有所改动，但基本原理仍然适用于Tuscany 1.6。</em></p>
+
+<!-- more -->
+
+
+<h1>Tuscany Architecture</h1>
+
+<p>下图展示了Tuscany的体系结构:</p>
+
+<p><img src="/images/ApacheTuscany/tuscany-architecture.jpg" title="Figure 1: Tuscany Architecture" ></p>
+
+<ul>
+<li>Tuscany Hosting是Tuscany的运行环境，如J2SE</li>
+<li>Tuscany Core只提供运行时和扩展机制支撑</li>
+<li>SCA Extensions包含了诸多的扩展，如各类绑定、数据格式、实现技术等</li>
+<li>SCA API: Tuscany应用程序（图中所示的Composite Application）通过SCA API访问Tuscany服务</li>
+</ul>
+
+
+<p>本文中我们主要关心Tuscany Core和SCA Extensions两个模块。</p>
+
+<h1>Extension Point</h1>
+
+<p>Tuscany将其欲支持的技术协议等实现为不同的Extensions，对于这些扩展，通过扩展点（Extension Point）与Tuscany core发生交互与联系。</p>
+
+<p>扩展点是Tuscany core与扩展之间的一组规约，定义了扩展应该遵循的规则、具备的行为，具体表现为扩展应该实现某些特定的Java接口或者继承某些base class。为满足不同的需求，Tuscany定义诸多的扩展点，下图示例性的展示了部分扩展点：</p>
+
+<p><img src="/images/ApacheTuscany/Tuscany-Extension-Point-Mechanism_an-example.jpg" title="Figure 2: Tuscany Extension Point Mechanism _ an example" ></p>
+
+<p>上图中，以ContributionScannerExtensionPoint为例，Tuscany应用程序可能以Folder、Jar、Zip等不同格式存在，我们将这些不同格式的应用程序称为一个Contribution，而图中所示的三个ContributionScanner分别用于读取Folder、Jar和Zip格式的Contribution。当这些Foler、Jar、Zip格式的contribution scanner被加载以后，需要将其向ContributionScannerExtensionPoint注册。同样地，对于StAXArtifactProcessorExtensionPoint中注册的各个processor主要用于处理.composite文件中不同的XML元素。</p>
+
+<h2>Extension Point Registry (EPR)</h2>
+
+<p>Tuscany core通过Extension Point Registry (EPR)对扩展点进行管理，EPR中保存了每个扩展点的信息。以contribution scanner为例，当需要JarContributionScanner时，通过查找EPR获取ContributionScannerExtensionPoint，再通过该扩展点查找Jar scanner，代码示例如下：</p>
+
+<figure class='code'><figcaption><span>look up extension point</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//创建EPR（Tuscany启动过程创建）</span>
+</span><span class='line'><span class="n">ExtensionPointRegistry</span> <span class="n">registry</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DefaultExtensionPointRegistry</span><span class="o">();</span>
+</span><span class='line'>  
+</span><span class='line'><span class="c1">//查找扩展点</span>
+</span><span class='line'><span class="n">ContributionScannerExtensionPoint</span> <span class="n">scanners</span><span class="o">=</span>
+</span><span class='line'>  <span class="n">registry</span><span class="o">.</span><span class="na">getExtensionPoint</span><span class="o">(</span><span class="n">ContributionScannerExtensionPoint</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>  
+</span><span class='line'><span class="c1">//查找JarContributionScanner</span>
+</span><span class='line'><span class="n">ContributionScanner</span> <span class="n">jarScanner</span> <span class="o">=</span>
+</span><span class='line'>  <span class="n">scanners</span><span class="o">.</span><span class="na">getContributionScanner</span><span class="o">(</span><span class="s">&quot;application/java-archive&quot;</span><span class="o">);</span>
+</span><span class='line'>  
+</span><span class='line'><span class="c1">//向扩展点注册ZipContributionScanner</span>
+</span><span class='line'><span class="n">ContributionScanner</span> <span class="n">zipScanner</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ZipContributionScanner</span><span class="o">(...);</span>
+</span><span class='line'><span class="n">scanners</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">zipScanner</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>JAR File Specification: Service Provider</h1>
+
+<p>前文说明了Tuscany运行时刻如何通过扩展点对扩展加以组织管理、引用，本章则主要关注一个扩展如何被Tuscany运行时刻发现、加载以及如何与扩展点关联。扩展只有被运行时刻发现才能发挥作用。</p>
+
+<p>Tuscany定义了诸多扩展点，这些扩展点正如电脑主板上的插槽一般，任何与插槽接口相匹配的扩展都可以被Tuscany core所发现、使用。</p>
+
+<p>每一个扩展必须显式的声明它所涉及的扩展点并指定与这些扩展点相应的具体实现类，二者的关系正如前文所述的ContributionScannerExtensionPoint和JarContributionScanner。Tuscany通过<a href="http://docs.oracle.com/javase/1.4.2/docs/guide/jar/jar.html">JAR File Specification: Service Provider</a>达到这一目的。关于该规范此处不再赘述。具体来看，就是在扩展的META-INF/services目录下定义属性文件，属性文件以扩展点名进行命名，而文件内容则为该扩展点的具体实现类。以binding-http扩展为例，该扩展在其META-INF/services目录下有两个属性文件，文件名如下:</p>
+
+<ul>
+<li>org.apache.tuscany.sca.binding.http.HTTPBindingFactory</li>
+<li>org.apache.tuscany.sca.contribution.processor.StAXArtifactProcessor</li>
+</ul>
+
+
+<p>上述两个文件的内容摘录分别如下：</p>
+
+<pre><code>//HTTPBindingFactory
+org.apache.tuscany.sca.binding.http.impl.HTTPBindingFactoryImpl
+
+//StAXArtifactProcessor
+org.apache.tuscany.sca.binding.http.xml.HTTPBindingProcessor;qname=http://tuscany.apache.org/xmlns/sca/1.1#binding.http,model=org.apache.tuscany.sca.binding.http.HTTPBinding,factory=org.apache.tuscany.sca.binding.http.HTTPBindingFactory
+org.apache.tuscany.sca.binding.http.xml.HTTPDefaultWireFormatProcessor;qname=http://tuscany.apache.org/xmlns/sca/1.1#wireFormat.httpDefault,model=org.apache.tuscany.sca.binding.http.HTTPDefaultWireFormat
+org.apache.tuscany.sca.binding.http.xml.HTTPXMLWireFormatProcessor;qname=http://tuscany.apache.org/xmlns/sca/1.1#wireFormat.httpXml,model=org.apache.tuscany.sca.binding.http.HTTPXMLWireFormat
+org.apache.tuscany.sca.binding.http.xml.HTTPDefaultOperationSelectorProcessor;qname=http://tuscany.apache.org/xmlns/sca/1.1#operationSelector.httpDefault,model=org.apache.tuscany.sca.binding.http.HTTPDefaultOperationSelector
+</code></pre>
+
+<p>HTTPBindingFactory是该扩展涉及的一个扩展点，HTTPBindingFactoryImpl则为该扩展点的一个实现类；同理，StAXArtifactProcessor是该扩展涉及的另一个扩展点，HTTPBindingProcessor、HTTPDefaultWireFormatProcessor、HTTPXMLWireFormatProcessor和HTTPDefaultOperationSelectorProcessor则为其实现类。</p>
+
+<p>当该扩展被加载时，Tuscany会通过Tuscany SPI读取META-INF/services目录下的属性文件，将属性文件中指定的实现类向该文件名指定的扩展点进行注册，进而可被Tuscany core进行组织管理和使用。</p>
+
+<h1>Maven Dependency</h1>
+
+<p>Tuscany通过扩展点机制结合JAR File Service Provider的方式实现扩展，为扩展的添加和移除带来了高度的可定制性。</p>
+
+<p>因为Tuscany使用Apache Maven对每个扩展进行管理，当我们也使用Maven管理自己的项目时，Tuscany扩展的灵活性、可定制性则更为明显和容易。我们只需为自己的项目添加它所需的maven dependencies，即extensions，不出现在直接或者间接dependencies中的扩展则完全不会被加载，即使处于分布式环境下的多个Tuscany结点也可以按需定制所需的扩展。</p>
+
+<h1><em>See also</em></h1>
+
+<ol>
+<li><a href="http://tuscany.apache.org/documentation-2x/sca-java-runtime-overview.html">Apache Tuscany Docs 2.x: SCA Java Runtime Overview</a></li>
+<li><a href="http://tuscany.apache.org/documentation-2x/tuscany-2x-extensibility-and-spis.html">Apache Tuscany Docs 2.x: Tuscany 2.x Extensibility and SPIs</a></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">imusings</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-08T09:34:00+08:00" pubdate data-updated="true">Jun 8<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/architecture/'>Architecture</a>, <a class='category' href='/blog/categories/cbsd/'>CBSD</a>, <a class='category' href='/blog/categories/soa/'>SOA</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/06/set-up-octopress-blog-on-github/" title="Previous Post: 基于Octopress和Github搭建个人博客">&laquo; 基于Octopress和Github搭建个人博客</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/apache-tuscany-extension-point-mechanism/">Apache Tuscany: Extension Point Mechanism</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/06/set-up-octopress-blog-on-github/">基于Octopress和Github搭建个人博客</a>
+      </li>
+    
+  </ul>
+</section>
+﻿<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/architecture'>Architecture (1)</a></li><li><a href='/blog/categories/cbsd'>CBSD (1)</a></li><li><a href='/blog/categories/soa'>SOA (1)</a></li><li><a href='/blog/categories/软件工具'>软件工具 (1)</a></li></ul>
+</section>
+ 
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - imusings -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'imusings';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://imusings.github.com/blog/2012/06/apache-tuscany-extension-point-mechanism/';
+        var disqus_url = 'http://imusings.github.com/blog/2012/06/apache-tuscany-extension-point-mechanism/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
